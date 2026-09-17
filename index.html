@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Licensure Hours &amp; CE Tracker</title>
+<style>
+:root{
+ --ink:#101d26; --ink2:#1b2a36; --paper:#f7f5ef; --card:#ffffff; --line:#dfe4e0;
+ --muted:#5a6b78; --acc:#0f7b6c; --acc2:#0b5f54; --gold:#c9a227; --red:#b3261e;
+ --amber:#b26a00; --blue:#1f5673; --chip:#eef2ee;
+ --r:12px; --sh:0 1px 2px rgba(16,29,38,.06),0 4px 14px rgba(16,29,38,.05);
+}
+[data-dark="1"]{
+ --ink:#e9eef1; --ink2:#cfd8de; --paper:#0d161c; --card:#132029; --line:#24333d;
+ --muted:#93a4b0; --acc:#3fbfa8; --acc2:#7fd8c6; --gold:#e0bd4a; --red:#ff8a80;
+ --amber:#ffc46b; --blue:#7fc3e8; --chip:#1a2831;
+ --sh:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+ font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.top{position:sticky;top:0;z-index:50;background:var(--card);border-bottom:1px solid var(--line);
+ padding:10px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{font-weight:700;letter-spacing:.2px;display:flex;align-items:center;gap:8px}
+.brand .dot{width:10px;height:10px;border-radius:50%;background:var(--acc)}
+.brand small{display:block;font-weight:500;color:var(--muted);font-size:11px;letter-spacing:.4px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto}
+.tab{border:1px solid transparent;background:transparent;color:var(--muted);padding:7px 11px;
+ border-radius:9px;cursor:pointer;font-size:13.5px;font-weight:600}
+.tab:hover{background:var(--chip);color:var(--ink)}
+.tab.on{background:var(--acc);color:#fff}
+.wrap{max-width:1240px;margin:0 auto;padding:18px 16px 60px}
+h2{margin:0 0 4px;font-size:20px;letter-spacing:-.2px}
+.sub{color:var(--muted);font-size:13px;margin-bottom:16px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:15px;box-shadow:var(--sh)}
+.card h3{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted)}
+.kpi{font-size:27px;font-weight:700;letter-spacing:-.6px;color:var(--acc)}
+.kpi.warn{color:var(--amber)} .kpi.bad{color:var(--red)} .kpi.gold{color:var(--gold)}
+.note{color:var(--muted);font-size:12px;margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);
+ padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:none}
+.tblwrap{overflow-x:auto}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 13px;
+ border-radius:9px;cursor:pointer;font-size:13.5px;font-weight:600}
+.btn:hover{background:var(--chip)}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+.btn.pri:hover{background:var(--acc2)}
+.btn.sm{padding:5px 9px;font-size:12.5px}
+.btn.danger{color:var(--red)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:11.5px;font-weight:700;
+ background:var(--chip);color:var(--ink2)}
+.pill.good{background:#e0f0e8;color:#1c6b4f}
+.pill.amber{background:#fdf0dc;color:#8a5200}
+.pill.bad{background:#fbe4e2;color:#8c1d16}
+.pill.blue{background:#e3eef5;color:#1a4a63}
+[data-dark="1"] .pill.good{background:#123528;color:#7fd8c6}
+[data-dark="1"] .pill.amber{background:#3a2a10;color:#ffc46b}
+[data-dark="1"] .pill.bad{background:#3b1b18;color:#ff8a80}
+[data-dark="1"] .pill.blue{background:#142c3a;color:#7fc3e8}
+.bar{height:9px;background:var(--chip);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--acc);border-radius:99px}
+.bar i.amber{background:var(--amber)} .bar i.bad{background:var(--red)}
+.barrow{display:grid;grid-template-columns:170px 1fr 74px;gap:10px;align-items:center;
+ font-size:13px;margin-bottom:9px}
+label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin:0 0 4px}
+input,select,textarea{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:9px;
+ background:var(--paper);color:var(--ink);font:inherit;font-size:13.5px}
+textarea{min-height:64px;resize:vertical}
+.fgrid{display:grid;gap:11px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.modal{position:fixed;inset:0;background:rgba(9,16,21,.55);display:flex;align-items:flex-start;
+ justify-content:center;padding:26px 14px;z-index:99;overflow:auto}
+.sheet{background:var(--card);border-radius:14px;max-width:660px;width:100%;padding:19px;
+ box-shadow:0 18px 50px rgba(0,0,0,.3)}
+.sheet h3{margin:0 0 14px;font-size:17px;text-transform:none;letter-spacing:0;color:var(--ink)}
+.empty{padding:22px;text-align:center;color:var(--muted);font-size:13.5px}
+.empty b{display:block;color:var(--ink);font-size:15px;margin-bottom:5px}
+.hint{color:var(--muted);font-size:12.5px;margin:0 0 12px}
+.legalbox{border:1px solid var(--gold);border-radius:10px;padding:11px 13px;background:var(--chip);
+ font-size:12.5px;color:var(--ink2);margin-bottom:14px}
+.legalbox b{color:var(--ink)}
+.sheetprint{background:#fff;color:#101d26;padding:26px;border-radius:10px;border:1px solid #dfe4e0}
+.sheetprint h4{margin:0 0 3px;font-size:17px}
+.sheetprint .psub{font-size:12px;color:#5a6b78;margin-bottom:15px}
+.sheetprint table{font-size:12.5px}
+.sheetprint th,.sheetprint td{border-bottom:1px solid #e6eae7;color:#101d26}
+.sigline{margin-top:22px;display:grid;grid-template-columns:1fr 1fr;gap:26px}
+.sigline div{border-top:1px solid #101d26;padding-top:5px;font-size:11.5px;color:#5a6b78}
+@media print{
+ .top,.noprint{display:none!important}
+ .wrap{padding:0;max-width:none}
+ body{background:#fff}
+ .sheetprint{border:none;padding:0}
+}
+.demo-banner{position:sticky;top:0;z-index:9999;background:#B9770E;color:#fff;font:600 13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;text-align:center;padding:9px 14px}
+.demo-banner a{color:#fff;text-decoration:underline}
+.demo-banner .x{position:absolute;right:10px;top:6px;background:none;border:none;color:#fff;font:inherit;cursor:pointer;opacity:.85;padding:4px 8px}
+.demo-banner .x:hover{opacity:1}
+@media print{.demo-banner{display:none!important}}
+</style></head>
+<body>
+<div class="demo-banner" id="demoBanner">DEMO — example data, add up to 15 of your own hour entries and see whether it thinks the way you do. Nothing is saved permanently and it can reset any time. <a href="https://www.etsy.com/shop/LedgerLoopStudio" target="_blank" rel="noopener">Buy the full version</a> for your own unlimited, permanent copy.<button class="x" onclick="document.getElementById('demoBanner').style.display='none'" aria-label="Dismiss">✕</button></div>
+<div class="top">
+  <div class="brand"><span class="dot"></span><span>Licensure Hours &amp; CE Tracker<small>LEDGERLOOPSTUDIO</small></span></div>
+  <div class="tabs" id="tabs"></div>
+  <button class="tab" data-dark="1">☾ Dark</button>
+</div>
+<div class="wrap" id="app"></div>
+
+<script id="logic">
+/* ============================================================================
+   PURE LOGIC — no DOM. Plain data in, plain data out, unit-testable.
+   ========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   REQUIREMENT PRESETS — STARTING POINTS ONLY. EDIT FREELY.
+   Licensure and continuing-education requirements are set by your own state or
+   provincial board, differ by licence type, and change. The presets below are
+   common patterns to start from, NOT a statement of any board's current rules.
+   Always confirm every number against your own board before relying on it.
+   Last reviewed by the author: 2026-09-17.
+   --------------------------------------------------------------------------- */
+var CRITERIA_REVIEWED = "2026-09-17";
+
+var PRESETS = [
+  {
+    id: "lcsw", label: "Clinical social work — common pattern",
+    totalHours: 3000, directHours: 1200,
+    supervisionHours: 100, individualPct: 50,
+    minMonths: 24, ceHoursPerCycle: 30, ceEthicsHours: 3, cycleMonths: 24
+  },
+  {
+    id: "lmft", label: "Marriage & family therapy — common pattern",
+    totalHours: 3000, directHours: 1500,
+    supervisionHours: 200, individualPct: 50,
+    minMonths: 24, ceHoursPerCycle: 30, ceEthicsHours: 6, cycleMonths: 24
+  },
+  {
+    id: "lpc", label: "Professional counselling — common pattern",
+    totalHours: 3000, directHours: 1200,
+    supervisionHours: 100, individualPct: 50,
+    minMonths: 24, ceHoursPerCycle: 40, ceEthicsHours: 6, cycleMonths: 24
+  },
+  {
+    id: "custom", label: "Custom — enter your own numbers",
+    totalHours: 3000, directHours: 1200,
+    supervisionHours: 100, individualPct: 50,
+    minMonths: 24, ceHoursPerCycle: 30, ceEthicsHours: 3, cycleMonths: 24
+  }
+];
+
+var HOUR_KINDS = [
+  { id: "direct",   label: "Direct client contact",        direct: true },
+  { id: "group",    label: "Group / family session",       direct: true },
+  { id: "intake",   label: "Intake / assessment",          direct: true },
+  { id: "crisis",   label: "Crisis intervention",          direct: true },
+  { id: "notes",    label: "Documentation & case notes",   direct: false },
+  { id: "consult",  label: "Case consultation",            direct: false },
+  { id: "training", label: "Training & in-service",        direct: false },
+  { id: "admin",    label: "Administrative",               direct: false },
+  { id: "other",    label: "Other indirect",               direct: false }
+];
+
+var CE_CATEGORIES = [
+  { id: "ethics",     label: "Ethics", ethics: true },
+  { id: "clinical",   label: "Clinical practice", ethics: false },
+  { id: "cultural",   label: "Cultural competence", ethics: false },
+  { id: "supervision",label: "Supervision training", ethics: false },
+  { id: "telehealth", label: "Telehealth", ethics: false },
+  { id: "suicide",    label: "Suicide prevention / risk", ethics: false },
+  { id: "other",      label: "Other approved", ethics: false }
+];
+
+/* ---------- helpers ---------- */
+function pad2(n) { return (n < 10 ? "0" : "") + n; }
+function toISO(d) { return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()); }
+function parseISO(s) {
+  if (!s) return null;
+  var p = String(s).split("-");
+  if (p.length !== 3) return null;
+  var d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+  return isNaN(d.getTime()) ? null : d;
+}
+function periodOf(iso) { return String(iso || "").slice(0, 7); }
+function periodLabel(p) {
+  var names = ["January","February","March","April","May","June",
+               "July","August","September","October","November","December"];
+  var bits = String(p || "").split("-");
+  if (bits.length < 2) return p || "";
+  return names[Number(bits[1]) - 1] + " " + bits[0];
+}
+function daysUntil(a, b) {
+  var x = parseISO(a), y = parseISO(b);
+  if (!x || !y) return null;
+  return Math.round((y - x) / 86400000);
+}
+function addMonths(iso, months) {
+  var d = parseISO(iso);
+  if (!d) return null;
+  var t = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  t.setMonth(t.getMonth() + months);
+  return toISO(t);
+}
+function monthsBetween(a, b) {
+  var x = parseISO(a), y = parseISO(b);
+  if (!x || !y) return null;
+  return (y.getFullYear() - x.getFullYear()) * 12 + (y.getMonth() - x.getMonth());
+}
+function num(v) { var n = parseFloat(v); return isNaN(n) ? 0 : n; }
+function round1(n) { return Math.round(n * 10) / 10; }
+function pct(part, whole) { return whole > 0 ? (part / whole) * 100 : 0; }
+
+function isDirect(kindId) {
+  for (var i = 0; i < HOUR_KINDS.length; i++) {
+    if (HOUR_KINDS[i].id === kindId) return !!HOUR_KINDS[i].direct;
+  }
+  return false;
+}
+function kindLabel(id) {
+  for (var i = 0; i < HOUR_KINDS.length; i++) { if (HOUR_KINDS[i].id === id) return HOUR_KINDS[i].label; }
+  return id || "";
+}
+function isEthics(catId) {
+  for (var i = 0; i < CE_CATEGORIES.length; i++) {
+    if (CE_CATEGORIES[i].id === catId) return !!CE_CATEGORIES[i].ethics;
+  }
+  return false;
+}
+function ceCatLabel(id) {
+  for (var i = 0; i < CE_CATEGORIES.length; i++) { if (CE_CATEGORIES[i].id === id) return CE_CATEGORIES[i].label; }
+  return id || "";
+}
+
+/* ---------- experience hours ---------- */
+function sumHours(rows) {
+  var t = 0;
+  for (var i = 0; i < rows.length; i++) t += num(rows[i].hours);
+  return round1(t);
+}
+function directHours(rows) {
+  var t = 0;
+  for (var i = 0; i < rows.length; i++) { if (isDirect(rows[i].kind)) t += num(rows[i].hours); }
+  return round1(t);
+}
+function indirectHours(rows) { return round1(sumHours(rows) - directHours(rows)); }
+
+function supTotals(contacts) {
+  var total = 0, indiv = 0;
+  for (var i = 0; i < contacts.length; i++) {
+    var h = num(contacts[i].hours);
+    total += h;
+    if (contacts[i].type === "individual") indiv += h;
+  }
+  return { total: round1(total), individual: round1(indiv),
+           group: round1(total - indiv), individualPct: pct(indiv, total) };
+}
+
+/* THE LICENSURE ENGINE — progress against the requirement set. */
+function licensureProgress(entries, contacts, req, startISO, todayISOstr) {
+  var total = sumHours(entries);
+  var direct = directHours(entries);
+  var sup = supTotals(contacts);
+  var months = startISO ? monthsBetween(startISO, todayISOstr) : 0;
+  if (months === null || months < 0) months = 0;
+
+  var checks = [];
+  var add = function (label, have, need, unit, ok) {
+    checks.push({ label: label, have: have, need: need, unit: unit,
+                  ok: ok === undefined ? have >= need : ok,
+                  percent: need > 0 ? Math.min(100, pct(have, need)) : 100 });
+  };
+
+  add("Total experience hours", total, num(req.totalHours), "h");
+  add("Direct client contact", direct, num(req.directHours), "h");
+  add("Supervision hours", sup.total, num(req.supervisionHours), "h");
+  add("Individual share of supervision", round1(sup.individualPct), num(req.individualPct), "%",
+      sup.total === 0 ? false : sup.individualPct >= num(req.individualPct));
+  add("Months elapsed", months, num(req.minMonths), " months");
+
+  var done = 0;
+  for (var i = 0; i < checks.length; i++) { if (checks[i].ok) done++; }
+
+  return {
+    total: total, direct: direct, indirect: round1(total - direct),
+    supervision: sup, months: months,
+    checks: checks, metCount: done, allMet: done === checks.length,
+    percent: pct(total, num(req.totalHours))
+  };
+}
+
+/* Pace + projection on experience hours. */
+function hoursPace(entries) {
+  var byPeriod = {};
+  for (var i = 0; i < entries.length; i++) {
+    var p = periodOf(entries[i].date);
+    if (!p) continue;
+    byPeriod[p] = (byPeriod[p] || 0) + num(entries[i].hours);
+  }
+  var keys = Object.keys(byPeriod), sum = 0;
+  for (var k = 0; k < keys.length; k++) sum += byPeriod[keys[k]];
+  return { pace: keys.length ? round1(sum / keys.length) : 0, periods: keys.length, byPeriod: byPeriod };
+}
+function projectFinish(entries, req, todayISOstr) {
+  var p = hoursPace(entries);
+  var remaining = Math.max(0, num(req.totalHours) - sumHours(entries));
+  if (p.pace <= 0) return { monthsLeft: null, finishISO: null, pace: 0 };
+  var monthsLeft = Math.ceil(remaining / p.pace);
+  return { monthsLeft: monthsLeft, finishISO: addMonths(todayISOstr, monthsLeft), pace: p.pace };
+}
+
+/* ---------- CE cycle ---------- */
+function ceInCycle(ceRows, cycleStartISO, cycleEndISO) {
+  var out = [];
+  for (var i = 0; i < ceRows.length; i++) {
+    var d = ceRows[i].date;
+    if (!d) continue;
+    if (d >= cycleStartISO && d <= cycleEndISO) out.push(ceRows[i]);
+  }
+  return out;
+}
+function ceTotals(ceRows) {
+  var total = 0, ethics = 0, unverified = 0;
+  for (var i = 0; i < ceRows.length; i++) {
+    var h = num(ceRows[i].hours);
+    total += h;
+    if (isEthics(ceRows[i].category)) ethics += h;
+    if (ceRows[i].certificate !== "1") unverified += h;
+  }
+  return { total: round1(total), ethics: round1(ethics),
+           unverified: round1(unverified), count: ceRows.length };
+}
+function ceCycleStatus(ceRows, req, cycleStartISO, todayISOstr) {
+  var cycleEnd = addMonths(cycleStartISO, num(req.cycleMonths));
+  var rows = ceInCycle(ceRows, cycleStartISO, cycleEnd);
+  var tot = ceTotals(rows);
+  var daysLeft = daysUntil(todayISOstr, cycleEnd);
+  var needTotal = num(req.ceHoursPerCycle);
+  var needEthics = num(req.ceEthicsHours);
+  var remaining = Math.max(0, needTotal - tot.total);
+  var monthsLeft = daysLeft === null ? null : Math.max(0, daysLeft / 30.44);
+
+  return {
+    cycleStart: cycleStartISO, cycleEnd: cycleEnd,
+    logged: tot.total, ethics: tot.ethics, unverified: tot.unverified, count: tot.count,
+    needTotal: needTotal, needEthics: needEthics,
+    remaining: round1(remaining),
+    totalMet: tot.total >= needTotal,
+    ethicsMet: tot.ethics >= needEthics,
+    daysLeft: daysLeft,
+    perMonthNeeded: monthsLeft && monthsLeft > 0 ? round1(remaining / monthsLeft) : null,
+    percent: needTotal > 0 ? Math.min(100, pct(tot.total, needTotal)) : 100,
+    ready: tot.total >= needTotal && tot.ethics >= needEthics && tot.unverified === 0
+  };
+}
+
+/* Audit readiness across everything that could be asked for. */
+function auditChecklist(entries, contacts, ceRows, req, cycle) {
+  var items = [];
+  var push = function (label, ok, detail) { items.push({ label: label, ok: ok, detail: detail }); };
+
+  var missingSup = 0;
+  for (var i = 0; i < entries.length; i++) { if (!entries[i].supervisorId) missingSup++; }
+  push("Every hours entry names a supervisor", missingSup === 0,
+       missingSup === 0 ? "All entries attributed" : missingSup + " entries with no supervisor");
+
+  var noCert = 0;
+  for (var j = 0; j < ceRows.length; j++) { if (ceRows[j].certificate !== "1") noCert++; }
+  push("Every CE entry has a certificate on file", noCert === 0,
+       noCert === 0 ? "All certificates marked held" : noCert + " without a certificate");
+
+  push("CE hours for this cycle complete", cycle.totalMet,
+       cycle.logged + " of " + cycle.needTotal + " hours");
+  push("Ethics hours for this cycle complete", cycle.ethicsMet,
+       cycle.ethics + " of " + cycle.needEthics + " hours");
+
+  var supT = supTotals(contacts);
+  push("Supervision individual share met", supT.total > 0 && supT.individualPct >= num(req.individualPct),
+       round1(supT.individualPct) + "% individual");
+
+  var gaps = supervisionGaps(contacts, 45);
+  push("No supervision gap longer than 45 days", gaps.length === 0,
+       gaps.length === 0 ? "No long gaps" : gaps.length + " gap(s) found");
+
+  var ok = 0;
+  for (var k = 0; k < items.length; k++) { if (items[k].ok) ok++; }
+  return { items: items, ok: ok, total: items.length,
+           score: items.length ? Math.round(pct(ok, items.length)) : 0 };
+}
+
+/* Find stretches with no supervision contact longer than maxDays. */
+function supervisionGaps(contacts, maxDays) {
+  var dates = [];
+  for (var i = 0; i < contacts.length; i++) { if (contacts[i].date) dates.push(contacts[i].date); }
+  dates.sort();
+  var gaps = [];
+  for (var j = 1; j < dates.length; j++) {
+    var d = daysUntil(dates[j - 1], dates[j]);
+    if (d !== null && d > maxDays) gaps.push({ from: dates[j - 1], to: dates[j], days: d });
+  }
+  return gaps;
+}
+
+function toCSV(rows) {
+  var out = [];
+  for (var i = 0; i < rows.length; i++) {
+    var line = [];
+    for (var j = 0; j < rows[i].length; j++) {
+      var cell = rows[i][j] === null || rows[i][j] === undefined ? "" : String(rows[i][j]);
+      line.push('"' + cell.replace(/"/g, '""') + '"');
+    }
+    out.push(line.join(","));
+  }
+  return out.join("\n");
+}
+</script>
+
+<script id="uiapp">
+/* ===== UI ===== */
+var KEY = "llsLicensureHours_v1";
+/* ---- demo-only limit: this block exists only in the public try-it demo, never in the sold product ---- */
+var DEMO_MODE = true, DEMO_ENTRY_LIMIT = 90; /* 75 seeded + 15 room to try adding your own */
+function demoLimitReached(){
+  if(!DEMO_MODE) return false;
+  if(!STATE.entries || STATE.entries.length < DEMO_ENTRY_LIMIT) return false;
+  alert("You've reached the "+DEMO_ENTRY_LIMIT+"-entry demo limit.\n\nThis is just a preview — buy the full version for unlimited entries, all features unlocked, and your own permanent copy.");
+  return true;
+}
+
+var STATE = null, VIEW = "dash", MODAL = null, EDIT = null;
+
+var TABS = [
+  ["dash", "Dashboard"], ["hours", "Experience Hours"], ["supervision", "Supervision"],
+  ["ce", "CE Log"], ["requirements", "Requirements"], ["renewal", "Renewal"],
+  ["people", "Supervisors"], ["reports", "Reports"]
+];
+
+function uid() { return "id" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function esc(s) {
+  return String(s === null || s === undefined ? "" : s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+function todayISO() { return toISO(new Date()); }
+
+function defaultReq() {
+  return {
+    presetId: "lcsw", stateName: "", licenceType: "",
+    totalHours: 3000, directHours: 1200, supervisionHours: 100, individualPct: 50,
+    minMonths: 24, ceHoursPerCycle: 30, ceEthicsHours: 3, cycleMonths: 24
+  };
+}
+function blank() {
+  return {
+    profile: { name: "", startDate: todayISO(), licensed: "0", licenceNo: "", cycleStart: todayISO() },
+    req: defaultReq(),
+    entries: [], contacts: [], ce: [], supervisors: [],
+    settings: { dark: "0" }
+  };
+}
+
+function seed() {
+  var today = new Date();
+  var iso = function (mb, day) { return toISO(new Date(today.getFullYear(), today.getMonth() - mb, day)); };
+  var s1 = uid(), s2 = uid();
+
+  var entries = [], contacts = [], ce = [];
+  var addH = function (mb, day, kind, hours, sup, note) {
+    entries.push({ id: uid(), date: iso(mb, day), kind: kind, hours: hours, supervisorId: sup, notes: note || "" });
+  };
+  for (var m = 13; m >= 0; m--) {
+    var f = m === 0 ? 0.4 : 1;
+    addH(m, 4, "direct", Math.round(46 * f), s1, "");
+    addH(m, 9, "group", Math.round(14 * f), s1, "");
+    addH(m, 13, "intake", Math.round(10 * f), s2, "");
+    addH(m, 17, "notes", Math.round(22 * f), s1, "");
+    addH(m, 21, "consult", Math.round(8 * f), s2, "");
+    if (m % 3 === 0) addH(m, 25, "training", Math.round(6 * f), s1, "In-service");
+  }
+  for (var c = 13; c >= 0; c--) {
+    contacts.push({ id: uid(), date: iso(c, 7), type: "individual", hours: 1,
+                    supervisorId: s1, notes: "Weekly individual" });
+    contacts.push({ id: uid(), date: iso(c, 21), type: "individual", hours: 1,
+                    supervisorId: s1, notes: "" });
+    if (c % 2 === 0) contacts.push({ id: uid(), date: iso(c, 14), type: "group", hours: 1.5,
+                                     supervisorId: s2, notes: "Group case review" });
+  }
+  var addCE = function (mb, day, cat, hours, prov, cert) {
+    ce.push({ id: uid(), date: iso(mb, day), category: cat, hours: hours,
+              provider: prov, certificate: cert ? "1" : "0", notes: "" });
+  };
+  addCE(11, 8, "ethics", 3, "State association conference", true);
+  addCE(9, 15, "clinical", 6, "Trauma-informed care webinar", true);
+  addCE(7, 12, "cultural", 4, "Cultural humility workshop", true);
+  addCE(5, 20, "suicide", 3, "Risk assessment training", true);
+  addCE(3, 6, "clinical", 6, "CBT intensive", true);
+  addCE(1, 18, "telehealth", 2, "Telehealth practice update", false);
+
+  var start = new Date(today.getFullYear(), today.getMonth() - 14, 1);
+  var cyc = new Date(today.getFullYear(), today.getMonth() - 12, 1);
+
+  return {
+    profile: {
+      name: "Sample Associate", startDate: toISO(start),
+      licensed: "0", licenceNo: "", cycleStart: toISO(cyc)
+    },
+    req: defaultReq(),
+    entries: entries, contacts: contacts, ce: ce,
+    supervisors: [
+      { id: s1, name: "Dr. J. Whitfield", credential: "LCSW-S", licenceNo: "SW-44210",
+        email: "j.whitfield@example.com", notes: "Primary clinical supervisor" },
+      { id: s2, name: "A. Demir", credential: "LMFT-S", licenceNo: "MFT-19887",
+        email: "a.demir@example.com", notes: "Group supervision" }
+    ],
+    settings: { dark: "0" }
+  };
+}
+
+function load() {
+  try {
+    var raw = localStorage.getItem(KEY);
+    if (raw) { STATE = JSON.parse(raw); }
+  } catch (e) { STATE = null; }
+  if (!STATE || !STATE.entries) STATE = seed();
+  if (!STATE.settings) STATE.settings = { dark: "0" };
+  if (!STATE.contacts) STATE.contacts = [];
+  if (!STATE.ce) STATE.ce = [];
+  if (!STATE.supervisors) STATE.supervisors = [];
+  if (!STATE.req) STATE.req = defaultReq();
+  if (!STATE.profile) STATE.profile = blank().profile;
+  document.documentElement.setAttribute("data-dark", STATE.settings.dark === "1" ? "1" : "0");
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(STATE)); } catch (e) { } }
+
+function el(tag, attrs, html) {
+  var a = "";
+  if (attrs) {
+    for (var k in attrs) {
+      if (attrs[k] === null || attrs[k] === undefined || attrs[k] === "") continue;
+      a += " " + k + '="' + String(attrs[k]).replace(/"/g, "&quot;") + '"';
+    }
+  }
+  return "<" + tag + a + ">" + (html === undefined || html === null ? "" : html) + "</" + tag + ">";
+}
+
+function supervisorName(id) {
+  for (var i = 0; i < STATE.supervisors.length; i++) {
+    if (STATE.supervisors[i].id === id) return STATE.supervisors[i].name;
+  }
+  return "—";
+}
+function supervisorOptions(sel) {
+  var out = el("option", { value: "" }, "— none —");
+  for (var i = 0; i < STATE.supervisors.length; i++) {
+    var s = STATE.supervisors[i];
+    out += el("option", { value: s.id, selected: s.id === sel ? "selected" : null }, esc(s.name));
+  }
+  return out;
+}
+function kindOptions(sel) {
+  var out = "";
+  for (var i = 0; i < HOUR_KINDS.length; i++) {
+    out += el("option", { value: HOUR_KINDS[i].id, selected: HOUR_KINDS[i].id === sel ? "selected" : null },
+      esc(HOUR_KINDS[i].label) + (HOUR_KINDS[i].direct ? " (direct)" : ""));
+  }
+  return out;
+}
+function ceOptions(sel) {
+  var out = "";
+  for (var i = 0; i < CE_CATEGORIES.length; i++) {
+    out += el("option", { value: CE_CATEGORIES[i].id, selected: CE_CATEGORIES[i].id === sel ? "selected" : null },
+      esc(CE_CATEGORIES[i].label));
+  }
+  return out;
+}
+
+function legalNote() {
+  return el("div", { "class": "legalbox" },
+    el("b", {}, "Confirm every number with your own board. ") +
+    "This is a record-keeping tool. It is not legal, clinical or licensing advice, and it is not " +
+    "affiliated with or endorsed by any state board or professional association. The requirement " +
+    "presets are common patterns, last reviewed " + esc(CRITERIA_REVIEWED) +
+    " — they are starting points you are expected to edit on the Requirements tab.");
+}
+
+function currentCycle() {
+  return ceCycleStatus(STATE.ce, STATE.req, STATE.profile.cycleStart || todayISO(), todayISO());
+}
+
+function listCard(title, rows, rowFn, emptyMsg, headHtml) {
+  var body;
+  if (!rows.length) {
+    body = el("div", { "class": "empty" }, el("b", {}, "Nothing here yet") + esc(emptyMsg));
+  } else {
+    var trs = "";
+    for (var i = 0; i < rows.length; i++) trs += rowFn(rows[i], i);
+    body = el("div", { "class": "tblwrap" }, el("table", {}, (headHtml || "") + trs));
+  }
+  return el("div", { "class": "card" }, el("h3", {}, esc(title)) + body);
+}
+
+/* ---------- VIEWS ---------- */
+
+function viewDash() {
+  var lp = licensureProgress(STATE.entries, STATE.contacts, STATE.req,
+    STATE.profile.startDate, todayISO());
+  var cyc = currentCycle();
+  var proj = projectFinish(STATE.entries, STATE.req, todayISO());
+  var audit = auditChecklist(STATE.entries, STATE.contacts, STATE.ce, STATE.req, cyc);
+
+  var kpis = el("div", { "class": "grid g4" },
+    el("div", { "class": "card" },
+      el("h3", {}, "Experience hours") +
+      el("div", { "class": "kpi" }, round1(lp.total) + " / " + num(STATE.req.totalHours)) +
+      el("div", { "class": "note" }, round1(Math.max(0, num(STATE.req.totalHours) - lp.total)) + " to go")) +
+    el("div", { "class": "card" },
+      el("h3", {}, "Direct client contact") +
+      el("div", { "class": "kpi " + (lp.direct >= num(STATE.req.directHours) ? "" : "warn") },
+        round1(lp.direct) + " / " + num(STATE.req.directHours)) +
+      el("div", { "class": "note" }, round1(pct(lp.direct, lp.total)) + "% of all hours")) +
+    el("div", { "class": "card" },
+      el("h3", {}, "CE this cycle") +
+      el("div", { "class": "kpi " + (cyc.totalMet ? "" : "warn") }, cyc.logged + " / " + cyc.needTotal) +
+      el("div", { "class": "note" }, cyc.daysLeft === null ? "Set a cycle start" : cyc.daysLeft + " days left in cycle")) +
+    el("div", { "class": "card" },
+      el("h3", {}, "Audit readiness") +
+      el("div", { "class": "kpi " + (audit.score === 100 ? "" : "warn") }, audit.score + "%") +
+      el("div", { "class": "note" }, audit.ok + " of " + audit.total + " checks pass")));
+
+  var reqRows = "";
+  for (var i = 0; i < lp.checks.length; i++) {
+    var c = lp.checks[i];
+    reqRows += el("div", { "class": "barrow" },
+      el("span", { style: "font-size:12.5px" }, esc(c.label)) +
+      el("span", { "class": "bar" },
+        el("i", { "class": c.ok ? "" : "amber", style: "width:" + c.percent + "%" }, "")) +
+      el("b", {}, round1(c.have) + (c.unit === "%" ? "%" : "") + " / " + c.need));
+  }
+
+  var progCard = el("div", { "class": "card" },
+    el("h3", {}, "Toward licensure") + reqRows +
+    el("p", { "class": "note" },
+      lp.metCount + " of " + lp.checks.length + " requirements met" +
+      (proj.finishISO ? " · at " + proj.pace + " h/month you reach the hours target around " + esc(proj.finishISO) : "")));
+
+  var auditRows = "";
+  for (var a = 0; a < audit.items.length; a++) {
+    auditRows += el("div", { "class": "barrow" },
+      el("span", { style: "font-size:12.5px" }, esc(audit.items[a].label)) +
+      el("span", { "class": "note" }, esc(audit.items[a].detail)) +
+      el("span", { style: "text-align:right" },
+        el("span", { "class": "pill " + (audit.items[a].ok ? "good" : "bad") }, audit.items[a].ok ? "OK" : "Fix")));
+  }
+  var auditCard = el("div", { "class": "card" }, el("h3", {}, "What an auditor would ask for") + auditRows);
+
+  return el("h2", {}, "Dashboard") +
+    el("div", { "class": "sub" }, "Hours toward licensure, CE for this cycle, and what is missing.") +
+    legalNote() +
+    kpis + el("div", { style: "height:14px" }, "") +
+    el("div", { "class": "grid g2" }, progCard + auditCard);
+}
+
+function viewHours() {
+  var rows = STATE.entries.slice().sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
+  var head = el("tr", {},
+    el("th", {}, "Date") + el("th", {}, "Activity") + el("th", {}, "Type") + el("th", {}, "Hours") +
+    el("th", {}, "Supervisor") + el("th", {}, "Notes") + el("th", { style: "text-align:right" }, ""));
+  var body = listCard("Experience hours", rows, function (e) {
+    var d = isDirect(e.kind);
+    return el("tr", {},
+      el("td", {}, esc(e.date)) +
+      el("td", {}, esc(kindLabel(e.kind))) +
+      el("td", {}, el("span", { "class": "pill " + (d ? "blue" : "") }, d ? "Direct" : "Indirect")) +
+      el("td", {}, round1(num(e.hours))) +
+      el("td", {}, esc(supervisorName(e.supervisorId))) +
+      el("td", {}, esc(e.notes || "")) +
+      el("td", { style: "text-align:right;white-space:nowrap" },
+        el("button", { "class": "btn sm", "data-edit-h": e.id }, "Edit") + " " +
+        el("button", { "class": "btn sm danger", "data-del-h": e.id }, "Delete")));
+  }, "Add your first block of hours.", head);
+
+  return el("h2", {}, "Experience Hours") +
+    el("div", { "class": "sub" }, "Direct or indirect is set by the activity, so the split is always right.") +
+    el("div", { "class": "row", style: "margin-bottom:12px" },
+      el("button", { "class": "btn pri", "data-new-h": "1" }, "+ Add hours") +
+      el("span", { "class": "note" },
+        round1(sumHours(STATE.entries)) + " total · " + round1(directHours(STATE.entries)) +
+        " direct · " + round1(indirectHours(STATE.entries)) + " indirect")) +
+    body;
+}
+
+function viewSupervision() {
+  var rows = STATE.contacts.slice().sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
+  var sup = supTotals(STATE.contacts);
+  var gaps = supervisionGaps(STATE.contacts, 45);
+
+  var head = el("tr", {},
+    el("th", {}, "Date") + el("th", {}, "Type") + el("th", {}, "Hours") +
+    el("th", {}, "Supervisor") + el("th", {}, "Notes") + el("th", { style: "text-align:right" }, ""));
+  var body = listCard("Supervision contacts", rows, function (c) {
+    return el("tr", {},
+      el("td", {}, esc(c.date)) +
+      el("td", {}, el("span", { "class": "pill " + (c.type === "individual" ? "blue" : "") },
+        c.type === "individual" ? "Individual" : "Group")) +
+      el("td", {}, round1(num(c.hours))) +
+      el("td", {}, esc(supervisorName(c.supervisorId))) +
+      el("td", {}, esc(c.notes || "")) +
+      el("td", { style: "text-align:right;white-space:nowrap" },
+        el("button", { "class": "btn sm", "data-edit-c": c.id }, "Edit") + " " +
+        el("button", { "class": "btn sm danger", "data-del-c": c.id }, "Delete")));
+  }, "Add your first supervision contact.", head);
+
+  var gapRows = "";
+  for (var i = 0; i < gaps.length; i++) {
+    gapRows += el("tr", {},
+      el("td", {}, esc(gaps[i].from)) + el("td", {}, esc(gaps[i].to)) +
+      el("td", { style: "text-align:right" }, el("span", { "class": "pill bad" }, gaps[i].days + " days")));
+  }
+  var gapCard = gaps.length
+    ? el("div", { "class": "card" },
+        el("h3", {}, "Gaps longer than 45 days") +
+        el("div", { "class": "tblwrap" }, el("table", {},
+          el("tr", {}, el("th", {}, "From") + el("th", {}, "To") + el("th", { style: "text-align:right" }, "Gap")) + gapRows)) +
+        el("p", { "class": "note" }, "Long gaps are what a board notices first. Note the reason in your records."))
+    : el("div", { "class": "card" },
+        el("h3", {}, "Continuity") +
+        el("div", { "class": "kpi" }, "No long gaps") +
+        el("div", { "class": "note" }, "No stretch over 45 days without a supervision contact."));
+
+  var statCard = el("div", { "class": "card" },
+    el("h3", {}, "Supervision mix") +
+    el("div", { "class": "barrow" },
+      el("span", {}, "Individual") +
+      el("span", { "class": "bar" }, el("i", { style: "width:" + Math.min(100, sup.individualPct) + "%" }, "")) +
+      el("b", {}, round1(sup.individual) + "h")) +
+    el("div", { "class": "barrow" },
+      el("span", {}, "Group") +
+      el("span", { "class": "bar" }, el("i", { "class": "amber", style: "width:" + Math.min(100, 100 - sup.individualPct) + "%" }, "")) +
+      el("b", {}, round1(sup.group) + "h")) +
+    el("p", { "class": "note" },
+      round1(sup.individualPct) + "% individual · your requirement is " + num(STATE.req.individualPct) + "%"));
+
+  return el("h2", {}, "Supervision") +
+    el("div", { "class": "sub" }, "Contacts, the individual/group split, and any gap a board would query.") +
+    el("div", { "class": "row", style: "margin-bottom:12px" },
+      el("button", { "class": "btn pri", "data-new-c": "1" }, "+ Add contact") +
+      el("span", { "class": "note" }, round1(sup.total) + " supervision hours logged")) +
+    el("div", { "class": "grid g2" }, statCard + gapCard) +
+    el("div", { style: "height:14px" }, "") +
+    body;
+}
+
+function viewCE() {
+  var cyc = currentCycle();
+  var rows = STATE.ce.slice().sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
+  var head = el("tr", {},
+    el("th", {}, "Date") + el("th", {}, "Category") + el("th", {}, "Hours") + el("th", {}, "Provider") +
+    el("th", {}, "Certificate") + el("th", { style: "text-align:right" }, ""));
+  var body = listCard("Continuing education", rows, function (r) {
+    var inCycle = r.date >= cyc.cycleStart && r.date <= cyc.cycleEnd;
+    return el("tr", {},
+      el("td", {}, esc(r.date) + (inCycle ? "" : el("div", { "class": "note" }, "outside cycle"))) +
+      el("td", {}, esc(ceCatLabel(r.category)) +
+        (isEthics(r.category) ? " " + el("span", { "class": "pill blue" }, "Ethics") : "")) +
+      el("td", {}, round1(num(r.hours))) +
+      el("td", {}, esc(r.provider || "—")) +
+      el("td", {}, r.certificate === "1"
+        ? el("span", { "class": "pill good" }, "On file")
+        : el("span", { "class": "pill bad" }, "Missing")) +
+      el("td", { style: "text-align:right;white-space:nowrap" },
+        el("button", { "class": "btn sm", "data-edit-e": r.id }, "Edit") + " " +
+        el("button", { "class": "btn sm danger", "data-del-e": r.id }, "Delete")));
+  }, "Log your first CE activity.", head);
+
+  var cycleCard = el("div", { "class": "card" },
+    el("h3", {}, "This renewal cycle") +
+    el("div", { "class": "barrow" },
+      el("span", {}, "Total hours") +
+      el("span", { "class": "bar" }, el("i", { "class": cyc.totalMet ? "" : "amber", style: "width:" + cyc.percent + "%" }, "")) +
+      el("b", {}, cyc.logged + " / " + cyc.needTotal)) +
+    el("div", { "class": "barrow" },
+      el("span", {}, "Ethics hours") +
+      el("span", { "class": "bar" },
+        el("i", { "class": cyc.ethicsMet ? "" : "bad", style: "width:" + Math.min(100, pct(cyc.ethics, cyc.needEthics)) + "%" }, "")) +
+      el("b", {}, cyc.ethics + " / " + cyc.needEthics)) +
+    el("p", { "class": "note" },
+      esc(cyc.cycleStart) + " to " + esc(cyc.cycleEnd) +
+      (cyc.daysLeft === null ? "" : " · " + cyc.daysLeft + " days left") +
+      (cyc.perMonthNeeded ? " · " + cyc.perMonthNeeded + " h/month to finish on time" : "")));
+
+  return el("h2", {}, "CE Log") +
+    el("div", { "class": "sub" }, "Continuing education for the current cycle, with certificates tracked.") +
+    el("div", { "class": "row", style: "margin-bottom:12px" },
+      el("button", { "class": "btn pri", "data-new-e": "1" }, "+ Add CE") +
+      el("span", { "class": "note" },
+        cyc.unverified > 0 ? cyc.unverified + " hours without a certificate on file" : "All certificates on file")) +
+    cycleCard + el("div", { style: "height:14px" }, "") + body;
+}
+
+function viewRequirements() {
+  var r = STATE.req;
+  var opts = "";
+  for (var i = 0; i < PRESETS.length; i++) {
+    opts += el("option", { value: PRESETS[i].id, selected: PRESETS[i].id === r.presetId ? "selected" : null },
+      esc(PRESETS[i].label));
+  }
+
+  var form = el("div", { "class": "card" },
+    el("h3", {}, "Your requirement set") +
+    el("p", { "class": "hint" },
+      "Pick a preset to fill the fields, then correct every number against your own board. " +
+      "These are starting points, not a statement of any board's current rules.") +
+    el("div", { "class": "fgrid" },
+      el("div", { style: "grid-column:1/-1" }, el("label", {}, "Preset") +
+        el("select", { id: "rPreset" }, opts)) +
+      el("div", {}, el("label", {}, "State / province") + el("input", { id: "rState", value: esc(r.stateName || "") }, "")) +
+      el("div", {}, el("label", {}, "Licence type") + el("input", { id: "rType", value: esc(r.licenceType || "") }, "")) +
+      el("div", {}, el("label", {}, "Total experience hours") + el("input", { id: "rTotal", type: "number", min: "0", value: esc(r.totalHours) }, "")) +
+      el("div", {}, el("label", {}, "Direct client hours") + el("input", { id: "rDirect", type: "number", min: "0", value: esc(r.directHours) }, "")) +
+      el("div", {}, el("label", {}, "Supervision hours") + el("input", { id: "rSup", type: "number", min: "0", value: esc(r.supervisionHours) }, "")) +
+      el("div", {}, el("label", {}, "Individual supervision %") + el("input", { id: "rIndiv", type: "number", min: "0", max: "100", value: esc(r.individualPct) }, "")) +
+      el("div", {}, el("label", {}, "Minimum months") + el("input", { id: "rMonths", type: "number", min: "0", value: esc(r.minMonths) }, "")) +
+      el("div", {}, el("label", {}, "CE hours per cycle") + el("input", { id: "rCE", type: "number", min: "0", value: esc(r.ceHoursPerCycle) }, "")) +
+      el("div", {}, el("label", {}, "Ethics hours per cycle") + el("input", { id: "rEthics", type: "number", min: "0", value: esc(r.ceEthicsHours) }, "")) +
+      el("div", {}, el("label", {}, "Cycle length (months)") + el("input", { id: "rCycle", type: "number", min: "1", value: esc(r.cycleMonths) }, ""))) +
+    el("div", { "class": "row", style: "margin-top:12px" },
+      el("button", { "class": "btn pri", "data-save-req": "1" }, "Save requirements") +
+      el("button", { "class": "btn", "data-apply-preset": "1" }, "Fill from preset")));
+
+  var p = STATE.profile;
+  var profile = el("div", { "class": "card" },
+    el("h3", {}, "Your details") +
+    el("div", { "class": "fgrid" },
+      el("div", { style: "grid-column:1/-1" }, el("label", {}, "Name") + el("input", { id: "pName", value: esc(p.name || "") }, "")) +
+      el("div", {}, el("label", {}, "Experience start date") + el("input", { id: "pStart", type: "date", value: esc(p.startDate || "") }, "")) +
+      el("div", {}, el("label", {}, "Current CE cycle start") + el("input", { id: "pCycle", type: "date", value: esc(p.cycleStart || "") }, "")) +
+      el("div", {}, el("label", {}, "Already licensed?") +
+        el("select", { id: "pLicensed" },
+          el("option", { value: "0", selected: p.licensed !== "1" ? "selected" : null }, "No — accruing hours") +
+          el("option", { value: "1", selected: p.licensed === "1" ? "selected" : null }, "Yes — maintaining CE"))) +
+      el("div", {}, el("label", {}, "Licence number") + el("input", { id: "pLicNo", value: esc(p.licenceNo || "") }, ""))) +
+    el("div", { "class": "row", style: "margin-top:12px" },
+      el("button", { "class": "btn pri", "data-save-profile": "1" }, "Save details")));
+
+  return el("h2", {}, "Requirements") +
+    el("div", { "class": "sub" }, "Set your own numbers once. Everything else in the app follows them.") +
+    legalNote() +
+    el("div", { "class": "grid g2" }, form + profile);
+}
+
+function viewRenewal() {
+  var cyc = currentCycle();
+  var lp = licensureProgress(STATE.entries, STATE.contacts, STATE.req, STATE.profile.startDate, todayISO());
+  var proj = projectFinish(STATE.entries, STATE.req, todayISO());
+
+  var byCat = {};
+  for (var i = 0; i < STATE.ce.length; i++) {
+    var row = STATE.ce[i];
+    if (row.date < cyc.cycleStart || row.date > cyc.cycleEnd) continue;
+    byCat[row.category] = (byCat[row.category] || 0) + num(row.hours);
+  }
+  var catRows = "";
+  for (var c = 0; c < CE_CATEGORIES.length; c++) {
+    var v = byCat[CE_CATEGORIES[c].id] || 0;
+    if (!v) continue;
+    catRows += el("div", { "class": "barrow" },
+      el("span", { style: "font-size:12.5px" }, esc(CE_CATEGORIES[c].label)) +
+      el("span", { "class": "bar" }, el("i", { style: "width:" + Math.min(100, pct(v, cyc.needTotal)) + "%" }, "")) +
+      el("b", {}, round1(v) + "h"));
+  }
+
+  var timeline = el("div", { "class": "card" },
+    el("h3", {}, "Renewal timeline") +
+    el("div", { "class": "tblwrap" }, el("table", {},
+      el("tr", {}, el("th", {}, "Cycle started") + el("td", {}, esc(cyc.cycleStart))) +
+      el("tr", {}, el("th", {}, "Cycle ends") + el("td", {}, esc(cyc.cycleEnd))) +
+      el("tr", {}, el("th", {}, "Days remaining") + el("td", {}, cyc.daysLeft === null ? "—" : cyc.daysLeft)) +
+      el("tr", {}, el("th", {}, "CE logged") + el("td", {}, cyc.logged + " of " + cyc.needTotal + " hours")) +
+      el("tr", {}, el("th", {}, "Ethics logged") + el("td", {}, cyc.ethics + " of " + cyc.needEthics + " hours")) +
+      el("tr", {}, el("th", {}, "Hours still needed") + el("td", {}, cyc.remaining)) +
+      el("tr", {}, el("th", {}, "Pace to finish on time") + el("td", {}, cyc.perMonthNeeded === null ? "—" : cyc.perMonthNeeded + " h/month")) +
+      el("tr", {}, el("th", {}, "Certificates outstanding") + el("td", {}, cyc.unverified + " hours")))));
+
+  var readiness = el("div", { "class": "card" },
+    el("h3", {}, "Renewal readiness") +
+    el("div", { "class": "kpi " + (cyc.ready ? "" : "warn") }, cyc.ready ? "Ready" : "Not yet") +
+    el("div", { "class": "note" },
+      cyc.ready
+        ? "CE hours, ethics hours and certificates are all complete for this cycle."
+        : (!cyc.totalMet ? "Short " + cyc.remaining + " CE hours. " : "") +
+          (!cyc.ethicsMet ? "Short " + round1(Math.max(0, cyc.needEthics - cyc.ethics)) + " ethics hours. " : "") +
+          (cyc.unverified > 0 ? cyc.unverified + " hours still need a certificate." : "")) +
+    el("div", { style: "height:12px" }, "") + catRows);
+
+  var lic = STATE.profile.licensed === "1" ? null : el("div", { "class": "card" },
+    el("h3", {}, "Licensure target") +
+    el("div", { "class": "barrow" },
+      el("span", {}, "Hours") +
+      el("span", { "class": "bar" }, el("i", { style: "width:" + Math.min(100, lp.percent) + "%" }, "")) +
+      el("b", {}, round1(lp.percent) + "%")) +
+    el("p", { "class": "note" },
+      lp.metCount + " of " + lp.checks.length + " requirements met" +
+      (proj.finishISO ? " · hours target reached around " + esc(proj.finishISO) + " at " + proj.pace + " h/month" : "")));
+
+  return el("h2", {}, "Renewal") +
+    el("div", { "class": "sub" }, "What is due, when it is due, and whether you can file today.") +
+    el("div", { "class": "grid g2" }, timeline + readiness) +
+    (lic ? el("div", { style: "height:14px" }, "") + lic : "");
+}
+
+function viewPeople() {
+  var head = el("tr", {},
+    el("th", {}, "Name") + el("th", {}, "Credential") + el("th", {}, "Licence no.") +
+    el("th", {}, "Email") + el("th", {}, "Notes") + el("th", { style: "text-align:right" }, ""));
+  var body = listCard("Supervisors", STATE.supervisors, function (s) {
+    var h = 0, n = 0;
+    for (var i = 0; i < STATE.contacts.length; i++) {
+      if (STATE.contacts[i].supervisorId === s.id) { h += num(STATE.contacts[i].hours); n++; }
+    }
+    return el("tr", {},
+      el("td", {}, esc(s.name) + el("div", { "class": "note" }, n + " contacts · " + round1(h) + " h")) +
+      el("td", {}, esc(s.credential || "—")) +
+      el("td", {}, esc(s.licenceNo || "—")) +
+      el("td", {}, esc(s.email || "—")) +
+      el("td", {}, esc(s.notes || "")) +
+      el("td", { style: "text-align:right;white-space:nowrap" },
+        el("button", { "class": "btn sm", "data-edit-s": s.id }, "Edit") + " " +
+        el("button", { "class": "btn sm danger", "data-del-s": s.id }, "Delete")));
+  }, "Add the supervisor who will verify your hours.", head);
+
+  return el("h2", {}, "Supervisors") +
+    el("div", { "class": "sub" }, "Names, credentials and licence numbers — the details a board asks for.") +
+    el("div", { "class": "row", style: "margin-bottom:12px" },
+      el("button", { "class": "btn pri", "data-new-s": "1" }, "+ Add supervisor")) +
+    body;
+}
+
+function viewReports() {
+  var pace = hoursPace(STATE.entries);
+  var keys = Object.keys(pace.byPeriod).sort().reverse();
+  var rows = "";
+  for (var i = 0; i < keys.length; i++) {
+    var pe = [];
+    for (var j = 0; j < STATE.entries.length; j++) {
+      if (periodOf(STATE.entries[j].date) === keys[i]) pe.push(STATE.entries[j]);
+    }
+    var pc = [];
+    for (var k = 0; k < STATE.contacts.length; k++) {
+      if (periodOf(STATE.contacts[k].date) === keys[i]) pc.push(STATE.contacts[k]);
+    }
+    var st = supTotals(pc);
+    rows += el("tr", {},
+      el("td", {}, esc(periodLabel(keys[i]))) +
+      el("td", {}, round1(sumHours(pe))) +
+      el("td", {}, round1(directHours(pe))) +
+      el("td", {}, round1(indirectHours(pe))) +
+      el("td", {}, round1(st.total)) +
+      el("td", { style: "text-align:right" }, pc.length));
+  }
+  var head = el("tr", {},
+    el("th", {}, "Month") + el("th", {}, "Total") + el("th", {}, "Direct") +
+    el("th", {}, "Indirect") + el("th", {}, "Supervision") + el("th", { style: "text-align:right" }, "Contacts"));
+
+  var table = keys.length
+    ? el("div", { "class": "tblwrap" }, el("table", {}, head + rows))
+    : el("div", { "class": "empty" }, el("b", {}, "No data yet") + "Log hours to build a report.");
+
+  var lp = licensureProgress(STATE.entries, STATE.contacts, STATE.req, STATE.profile.startDate, todayISO());
+  var cyc = currentCycle();
+
+  var sheet = el("div", { "class": "sheetprint", id: "printSheet" },
+    el("h4", {}, "Licensure and CE Summary") +
+    el("div", { "class": "psub" },
+      esc(STATE.profile.name || "—") + " · prepared " + esc(todayISO()) +
+      (STATE.req.stateName ? " · " + esc(STATE.req.stateName) : "") +
+      (STATE.req.licenceType ? " · " + esc(STATE.req.licenceType) : "")) +
+    el("table", {},
+      el("tr", {}, el("th", {}, "Experience start") + el("td", {}, esc(STATE.profile.startDate || "—"))) +
+      el("tr", {}, el("th", {}, "Total hours") + el("td", {}, round1(lp.total) + " of " + num(STATE.req.totalHours))) +
+      el("tr", {}, el("th", {}, "Direct client hours") + el("td", {}, round1(lp.direct) + " of " + num(STATE.req.directHours))) +
+      el("tr", {}, el("th", {}, "Indirect hours") + el("td", {}, round1(lp.indirect))) +
+      el("tr", {}, el("th", {}, "Supervision hours") + el("td", {}, round1(lp.supervision.total) + " of " + num(STATE.req.supervisionHours))) +
+      el("tr", {}, el("th", {}, "Individual supervision") + el("td", {}, round1(lp.supervision.individualPct) + "%")) +
+      el("tr", {}, el("th", {}, "Months elapsed") + el("td", {}, lp.months + " of " + num(STATE.req.minMonths))) +
+      el("tr", {}, el("th", {}, "CE this cycle") + el("td", {}, cyc.logged + " of " + cyc.needTotal + " hours (" + cyc.ethics + " ethics)"))) +
+    el("div", { "class": "sigline" },
+      el("div", {}, "Applicant signature and date") +
+      el("div", {}, "Supervisor signature, credential and date")));
+
+  return el("h2", {}, "Reports") +
+    el("div", { "class": "sub" }, "Month-by-month totals, a printable summary, and a backup you control.") +
+    el("div", { "class": "row noprint", style: "margin-bottom:12px" },
+      el("button", { "class": "btn pri", "data-print": "1" }, "Print summary") +
+      el("button", { "class": "btn", "data-export-json": "1" }, "Download backup") +
+      el("button", { "class": "btn", "data-export-csv": "1" }, "Export hours CSV") +
+      el("button", { "class": "btn", "data-export-ce": "1" }, "Export CE CSV") +
+      el("button", { "class": "btn", "data-import": "1" }, "Restore backup") +
+      el("button", { "class": "btn danger", "data-reset": "1" }, "Start empty") +
+      el("input", { type: "file", id: "importFile", accept: ".json", style: "display:none" }, "")) +
+    el("div", { "class": "card noprint" }, el("h3", {}, "By month") + table) +
+    el("div", { style: "height:14px" }, "") + sheet;
+}
+
+/* ---------- MODALS ---------- */
+
+function modalHours() {
+  var e = null;
+  if (EDIT) { for (var i = 0; i < STATE.entries.length; i++) { if (STATE.entries[i].id === EDIT) e = STATE.entries[i]; } }
+  e = e || { date: todayISO(), kind: "direct", hours: "", supervisorId: "", notes: "" };
+  return el("div", { "class": "sheet" },
+    el("h3", {}, EDIT ? "Edit hours" : "Add experience hours") +
+    el("div", { "class": "fgrid" },
+      el("div", {}, el("label", {}, "Date") + el("input", { id: "fDate", type: "date", value: esc(e.date) }, "")) +
+      el("div", {}, el("label", {}, "Hours") + el("input", { id: "fHours", type: "number", step: "0.25", min: "0", value: esc(e.hours) }, "")) +
+      el("div", { style: "grid-column:1/-1" }, el("label", {}, "Activity") + el("select", { id: "fKind" }, kindOptions(e.kind))) +
+      el("div", { style: "grid-column:1/-1" }, el("label", {}, "Supervisor") + el("select", { id: "fSup" }, supervisorOptions(e.supervisorId))) +
+      el("div", { style: "grid-column:1/-1" }, el("label", {}, "Notes") + el("textarea", { id: "fNotes" }, esc(e.notes || "")))) +
+    el("div", { "class": "row", style: "margin-top:14px;justify-content:flex-end" },
+      el("button", { "class": "btn", "data-close": "1" }, "Cancel") +
+      el("button", { "class": "btn pri", "data-save-h": "1" }, "Save")));
+}
+
+function modalContact() {
+  var c = null;
+  if (EDIT) { for (var i = 0; i < STATE.contacts.length; i++) { if (STATE.contacts[i].id === EDIT) c = STATE.contacts[i]; } }
+  c = c || { date: todayISO(), type: "individual", hours: "", supervisorId: "", notes: "" };
+  return el("div", { "class": "sheet" },
+    el("h3", {}, EDIT ? "Edit contact" : "Add supervision contact") +
+    el("div", { "class": "fgrid" },
+      el("div", {}, el("label", {}, "Date") + el("input", { id: "cDate", type: "date", value: esc(c.date) }, "")) +
+      el("div", {}, el("label", {}, "Hours") + el("input", { id: "cHours", type: "number", step: "0.25", min: "0", value: esc(c.hours) }, "")) +
+      el("div", {}, el("label", {}, "Type") +
+        el("select", { id: "cType" },
+          el("option", { value: "individual", selected: c.type === "individual" ? "selected" : null }, "Individual") +
+          el("option", { value: "group", selected: c.type === "group" ? "selected" : null }, "Group"))) +
+      el("div", {}, el("label", {}, "Supervisor") + el("select", { id: "cSup" }, supervisorOptions(c.supervisorId))) +
+      el("div", { style: "grid-column:1/-1" }, el("label", {}, "Notes") + el("textarea", { id: "cNotes" }, esc(c.notes || "")))) +
+    el("div", { "class": "row", style: "margin-top:14px;justify-content:flex-end" },
+      el("button", { "class": "btn", "data-close": "1" }, "Cancel") +
+      el("button", { "class": "btn pri", "data-save-c": "1" }, "Save")));
+}
+
+function modalCE() {
+  var r = null;
+  if (EDIT) { for (var i = 0; i < STATE.ce.length; i++) { if (STATE.ce[i].id === EDIT) r = STATE.ce[i]; } }
+  r = r || { date: todayISO(), category: "clinical", hours: "", provider: "", certificate: "0", notes: "" };
+  return el("div", { "class": "sheet" },
+    el("h3", {}, EDIT ? "Edit CE entry" : "Add CE entry") +
+    el("div", { "class": "fgrid" },
+      el("div", {}, el("label", {}, "Date") + el("input", { id: "eDate", type: "date", value: esc(r.date) }, "")) +
+      el("div", {}, el("label", {}, "Hours") + el("input", { id: "eHours", type: "number", step: "0.25", min: "0", value: esc(r.hours) }, "")) +
+      el("div", {}, el("label", {}, "Category") + el("select", { id: "eCat" }, ceOptions(r.category))) +
+      el("div", {}, el("label", {}, "Certificate on file?") +
+        el("select", { id: "eCert" },
+          el("option", { value: "0", selected: r.certificate !== "1" ? "selected" : null }, "No") +
+          el("option", { value: "1", selected: r.certificate === "1" ? "selected" : null }, "Yes"))) +
+      el("div", { style: "grid-column:1/-1" }, el("label", {}, "Provider") + el("input", { id: "eProv", value: esc(r.provider || "") }, "")) +
+      el("div", { style: "grid-column:1/-1" }, el("label", {}, "Notes") + el("textarea", { id: "eNotes" }, esc(r.notes || "")))) +
+    el("div", { "class": "row", style: "margin-top:14px;justify-content:flex-end" },
+      el("button", { "class": "btn", "data-close": "1" }, "Cancel") +
+      el("button", { "class": "btn pri", "data-save-e": "1" }, "Save")));
+}
+
+function modalSupervisor() {
+  var s = null;
+  if (EDIT) { for (var i = 0; i < STATE.supervisors.length; i++) { if (STATE.supervisors[i].id === EDIT) s = STATE.supervisors[i]; } }
+  s = s || { name: "", credential: "", licenceNo: "", email: "", notes: "" };
+  return el("div", { "class": "sheet" },
+    el("h3", {}, EDIT ? "Edit supervisor" : "Add supervisor") +
+    el("div", { "class": "fgrid" },
+      el("div", { style: "grid-column:1/-1" }, el("label", {}, "Name") + el("input", { id: "sName", value: esc(s.name) }, "")) +
+      el("div", {}, el("label", {}, "Credential") + el("input", { id: "sCred", value: esc(s.credential || "") }, "")) +
+      el("div", {}, el("label", {}, "Licence number") + el("input", { id: "sLic", value: esc(s.licenceNo || "") }, "")) +
+      el("div", { style: "grid-column:1/-1" }, el("label", {}, "Email") + el("input", { id: "sEmail", value: esc(s.email || "") }, "")) +
+      el("div", { style: "grid-column:1/-1" }, el("label", {}, "Notes") + el("textarea", { id: "sNotes" }, esc(s.notes || "")))) +
+    el("div", { "class": "row", style: "margin-top:14px;justify-content:flex-end" },
+      el("button", { "class": "btn", "data-close": "1" }, "Cancel") +
+      el("button", { "class": "btn pri", "data-save-s": "1" }, "Save")));
+}
+
+/* ---------- RENDER ---------- */
+
+function render() {
+  var tabs = "";
+  for (var i = 0; i < TABS.length; i++) {
+    tabs += el("button", { "class": "tab" + (VIEW === TABS[i][0] ? " on" : ""), "data-tab": TABS[i][0] }, TABS[i][1]);
+  }
+  document.getElementById("tabs").innerHTML = tabs;
+
+  var html = "";
+  if (VIEW === "dash") html = viewDash();
+  else if (VIEW === "hours") html = viewHours();
+  else if (VIEW === "supervision") html = viewSupervision();
+  else if (VIEW === "ce") html = viewCE();
+  else if (VIEW === "requirements") html = viewRequirements();
+  else if (VIEW === "renewal") html = viewRenewal();
+  else if (VIEW === "people") html = viewPeople();
+  else if (VIEW === "reports") html = viewReports();
+
+  if (MODAL === "hours") html += el("div", { "class": "modal", "data-modal": "1" }, modalHours());
+  else if (MODAL === "contact") html += el("div", { "class": "modal", "data-modal": "1" }, modalContact());
+  else if (MODAL === "ce") html += el("div", { "class": "modal", "data-modal": "1" }, modalCE());
+  else if (MODAL === "supervisor") html += el("div", { "class": "modal", "data-modal": "1" }, modalSupervisor());
+
+  document.getElementById("app").innerHTML = html;
+}
+
+function val(id) { var n = document.getElementById(id); return n ? n.value : ""; }
+
+function download(name, text, type) {
+  var blob = new Blob([text], { type: type || "application/json" });
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+document.addEventListener("click", function (ev) {
+  var t = ev.target;
+  var g = function (attr) {
+    var n = t;
+    while (n && n !== document) {
+      if (n.getAttribute && n.getAttribute(attr) !== null) return n.getAttribute(attr);
+      n = n.parentNode;
+    }
+    return null;
+  };
+
+  if (g("data-tab")) { VIEW = g("data-tab"); MODAL = null; EDIT = null; render(); return; }
+  if (g("data-dark")) {
+    STATE.settings.dark = STATE.settings.dark === "1" ? "0" : "1";
+    document.documentElement.setAttribute("data-dark", STATE.settings.dark);
+    save(); render(); return;
+  }
+  if (g("data-close") || (g("data-modal") && t.className === "modal")) { MODAL = null; EDIT = null; render(); return; }
+  if (g("data-print")) { window.print(); return; }
+
+  if (g("data-new-h")) { MODAL = "hours"; EDIT = null; render(); return; }
+  if (g("data-edit-h")) { MODAL = "hours"; EDIT = g("data-edit-h"); render(); return; }
+  if (g("data-del-h")) {
+    var idh = g("data-del-h");
+    if (confirm("Delete this entry?")) {
+      STATE.entries = STATE.entries.filter(function (x) { return x.id !== idh; });
+      save(); render();
+    }
+    return;
+  }
+  if (g("data-save-h")) {
+    var hv = num(val("fHours"));
+    if (hv <= 0) { alert("Enter how many hours."); return; }
+    var hrec = { id: EDIT || uid(), date: val("fDate") || todayISO(), kind: val("fKind"),
+                 hours: hv, supervisorId: val("fSup"), notes: val("fNotes") };
+    if (EDIT) { STATE.entries = STATE.entries.map(function (x) { return x.id === EDIT ? hrec : x; }); }
+    else { if(demoLimitReached()) return; STATE.entries.push(hrec); }
+    MODAL = null; EDIT = null; save(); render(); return;
+  }
+
+  if (g("data-new-c")) { MODAL = "contact"; EDIT = null; render(); return; }
+  if (g("data-edit-c")) { MODAL = "contact"; EDIT = g("data-edit-c"); render(); return; }
+  if (g("data-del-c")) {
+    var idc = g("data-del-c");
+    if (confirm("Delete this contact?")) {
+      STATE.contacts = STATE.contacts.filter(function (x) { return x.id !== idc; });
+      save(); render();
+    }
+    return;
+  }
+  if (g("data-save-c")) {
+    var cv = num(val("cHours"));
+    if (cv <= 0) { alert("Enter the duration in hours."); return; }
+    var crec = { id: EDIT || uid(), date: val("cDate") || todayISO(), type: val("cType"),
+                 hours: cv, supervisorId: val("cSup"), notes: val("cNotes") };
+    if (EDIT) { STATE.contacts = STATE.contacts.map(function (x) { return x.id === EDIT ? crec : x; }); }
+    else { STATE.contacts.push(crec); }
+    MODAL = null; EDIT = null; save(); render(); return;
+  }
+
+  if (g("data-new-e")) { MODAL = "ce"; EDIT = null; render(); return; }
+  if (g("data-edit-e")) { MODAL = "ce"; EDIT = g("data-edit-e"); render(); return; }
+  if (g("data-del-e")) {
+    var ide = g("data-del-e");
+    if (confirm("Delete this CE entry?")) {
+      STATE.ce = STATE.ce.filter(function (x) { return x.id !== ide; });
+      save(); render();
+    }
+    return;
+  }
+  if (g("data-save-e")) {
+    var ev2 = num(val("eHours"));
+    if (ev2 <= 0) { alert("Enter the CE hours."); return; }
+    var erec = { id: EDIT || uid(), date: val("eDate") || todayISO(), category: val("eCat"),
+                 hours: ev2, provider: val("eProv"), certificate: val("eCert"), notes: val("eNotes") };
+    if (EDIT) { STATE.ce = STATE.ce.map(function (x) { return x.id === EDIT ? erec : x; }); }
+    else { STATE.ce.push(erec); }
+    MODAL = null; EDIT = null; save(); render(); return;
+  }
+
+  if (g("data-new-s")) { MODAL = "supervisor"; EDIT = null; render(); return; }
+  if (g("data-edit-s")) { MODAL = "supervisor"; EDIT = g("data-edit-s"); render(); return; }
+  if (g("data-del-s")) {
+    var ids = g("data-del-s");
+    if (confirm("Delete this supervisor? Logged hours stay, but lose the name.")) {
+      STATE.supervisors = STATE.supervisors.filter(function (x) { return x.id !== ids; });
+      save(); render();
+    }
+    return;
+  }
+  if (g("data-save-s")) {
+    var nm = val("sName").trim();
+    if (!nm) { alert("Give the supervisor a name."); return; }
+    var srec = { id: EDIT || uid(), name: nm, credential: val("sCred"),
+                 licenceNo: val("sLic"), email: val("sEmail"), notes: val("sNotes") };
+    if (EDIT) { STATE.supervisors = STATE.supervisors.map(function (x) { return x.id === EDIT ? srec : x; }); }
+    else { STATE.supervisors.push(srec); }
+    MODAL = null; EDIT = null; save(); render(); return;
+  }
+
+  if (g("data-apply-preset")) {
+    var pid = val("rPreset");
+    for (var p = 0; p < PRESETS.length; p++) {
+      if (PRESETS[p].id === pid) {
+        STATE.req.presetId = pid;
+        STATE.req.totalHours = PRESETS[p].totalHours;
+        STATE.req.directHours = PRESETS[p].directHours;
+        STATE.req.supervisionHours = PRESETS[p].supervisionHours;
+        STATE.req.individualPct = PRESETS[p].individualPct;
+        STATE.req.minMonths = PRESETS[p].minMonths;
+        STATE.req.ceHoursPerCycle = PRESETS[p].ceHoursPerCycle;
+        STATE.req.ceEthicsHours = PRESETS[p].ceEthicsHours;
+        STATE.req.cycleMonths = PRESETS[p].cycleMonths;
+      }
+    }
+    save(); render(); return;
+  }
+  if (g("data-save-req")) {
+    STATE.req.presetId = val("rPreset");
+    STATE.req.stateName = val("rState");
+    STATE.req.licenceType = val("rType");
+    STATE.req.totalHours = num(val("rTotal"));
+    STATE.req.directHours = num(val("rDirect"));
+    STATE.req.supervisionHours = num(val("rSup"));
+    STATE.req.individualPct = num(val("rIndiv"));
+    STATE.req.minMonths = num(val("rMonths"));
+    STATE.req.ceHoursPerCycle = num(val("rCE"));
+    STATE.req.ceEthicsHours = num(val("rEthics"));
+    STATE.req.cycleMonths = num(val("rCycle"));
+    save(); render(); return;
+  }
+  if (g("data-save-profile")) {
+    STATE.profile.name = val("pName");
+    STATE.profile.startDate = val("pStart");
+    STATE.profile.cycleStart = val("pCycle");
+    STATE.profile.licensed = val("pLicensed");
+    STATE.profile.licenceNo = val("pLicNo");
+    save(); render(); return;
+  }
+
+  if (g("data-export-json")) {
+    download("licensure-backup-" + todayISO() + ".json", JSON.stringify(STATE, null, 2));
+    return;
+  }
+  if (g("data-export-csv")) {
+    var rows = [["Date", "Activity", "Direct", "Hours", "Supervisor", "Notes"]];
+    var sorted = STATE.entries.slice().sort(function (a, b) { return String(a.date).localeCompare(String(b.date)); });
+    for (var i = 0; i < sorted.length; i++) {
+      rows.push([sorted[i].date, kindLabel(sorted[i].kind), isDirect(sorted[i].kind) ? "Yes" : "No",
+        sorted[i].hours, supervisorName(sorted[i].supervisorId), sorted[i].notes || ""]);
+    }
+    download("experience-hours-" + todayISO() + ".csv", toCSV(rows), "text/csv");
+    return;
+  }
+  if (g("data-export-ce")) {
+    var crows = [["Date", "Category", "Hours", "Provider", "Certificate on file", "Notes"]];
+    var cs = STATE.ce.slice().sort(function (a, b) { return String(a.date).localeCompare(String(b.date)); });
+    for (var j = 0; j < cs.length; j++) {
+      crows.push([cs[j].date, ceCatLabel(cs[j].category), cs[j].hours, cs[j].provider || "",
+        cs[j].certificate === "1" ? "Yes" : "No", cs[j].notes || ""]);
+    }
+    download("ce-log-" + todayISO() + ".csv", toCSV(crows), "text/csv");
+    return;
+  }
+  if (g("data-reset")) {
+    if (confirm("Clear everything and start empty? Export a backup first if you need one.")) {
+      STATE = blank(); save(); VIEW = "dash"; render();
+    }
+    return;
+  }
+  if (g("data-import")) {
+    var f = document.getElementById("importFile");
+    if (f) f.click();
+    return;
+  }
+});
+
+document.addEventListener("change", function (ev) {
+  var t = ev.target;
+  if (t && t.id === "importFile" && t.files && t.files[0]) {
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      try {
+        var obj = JSON.parse(e.target.result);
+        if (!obj || !obj.entries) throw new Error("bad file");
+        STATE = obj;
+        if (!STATE.settings) STATE.settings = { dark: "0" };
+        if (!STATE.contacts) STATE.contacts = [];
+        if (!STATE.ce) STATE.ce = [];
+        if (!STATE.supervisors) STATE.supervisors = [];
+        if (!STATE.req) STATE.req = defaultReq();
+        if (!STATE.profile) STATE.profile = blank().profile;
+        save(); render();
+      } catch (err) { alert("That file could not be read as a backup."); }
+    };
+    reader.readAsText(t.files[0]);
+  }
+});
+
+load();
+render();
+</script>
+</body></html>
